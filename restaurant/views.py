@@ -103,6 +103,7 @@ class TicketView(viewsets.ModelViewSet):
 
   def update(self, request, ticket_id):
     user = get_profile_from_api_request(request=request)
+
     try:
       ticket = Ticket.objects.get(id=ticket_id, restaurant__owner__id=user.id)
       ticket_serializer = TicketSerializer(ticket)

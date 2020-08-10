@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from ..models import Profile
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import viewsets
 
 
 class ObtainTokenPairSerializer(TokenObtainPairSerializer):
@@ -41,43 +42,44 @@ def get_tokens_for_user(user):
   }
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def sign_up(request):
-  data = request.data
-  password = data.get('password')
-  confirmation_password = data.get('confirm_password')
+class ProfileView(viewsets.ModelViewSet):
+  permission_classes = [AllowAny]
 
-  serializer = SignUpSerializer(data=data)
-  serializer.is_valid(raise_exception=True)
+  def create(self, request):
+    data = request.data
+    password = data.get('password')
+    confirmation_password = data.get('confirm_password')
 
-  if not confirmation_password:
-    return Response({
-        'confirm_password': ['This field is required']
-    }, status=status.HTTP_400_BAD_REQUEST)
+    serializer = SignUpSerializer(data=data)
+    serializer.is_valid(raise_exception=True)
 
-  if password != confirmation_password:
-    return Response({
-        'confirm_password': ['Confirm password and password do not match']
-    }, status=status.HTTP_400_BAD_REQUEST)
+    if not confirmation_password:
+      return Response({
+          'confirm_password': ['This field is required']
+      }, status=status.HTTP_400_BAD_REQUEST)
 
-  try:
-    User.objects.get(username=data.get('username'))
-    return Response({
-        'user_name': ['A user with the username exists']
-    }, status=status.HTTP_400_BAD_REQUEST)
-  except:
-     country = data.get('country')
-     serializer_data = serializer.data
-     serializer_data.pop('country', None)
-     user = User.objects.create_user(**serializer_data)
+    if password != confirmation_password:
+      return Response({
+          'confirm_password': ['Confirm password and password do not match']
+      }, status=status.HTTP_400_BAD_REQUEST)
 
-     Profile.objects.create(
-         user=user,
-         country=data.get('country')
-     )
+    try:
+      User.objects.get(username=data.get('username'))
+      return Response({
+          'user_name': ['A user with the username exists']
+      }, status=status.HTTP_400_BAD_REQUEST)
+    except:
+      country = data.get('country')
+      serializer_data = serializer.data
+      serializer_data.pop('country', None)
+      user = User.objects.create_user(**serializer_data)
 
-     return Response(
-         data=get_tokens_for_user(user=user),
-         status=status.HTTP_201_CREATED
-     )
+      Profile.objects.create(
+          user=user,
+          country=data.get('country')
+      )
+
+      return Response(
+          data=get_tokens_for_user(user=user),
+          status=status.HTTP_201_CREATED
+      )
