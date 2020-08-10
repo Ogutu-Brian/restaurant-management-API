@@ -136,32 +136,29 @@ def update_ticket(request, ticket_id):
     }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['PUT'])
-@permission_classes([AllowAny])
-def buy_ticket(request, ticket_id):
-  try:
-    ticket = Ticket.objects.get(id=ticket_id)
-
-    if ticket.number_purchased >= ticket.max_purchase_count:
-      return Response({
-          'error': 'All tickets have been bought'
-      }, status=status.HTTP_400_BAD_REQUEST)
-
-    ticket.number_purchased = F('number_purchased') + 1
-    ticket.save()
-
-    serializer = PurchaseSerializer(data={'ticket': ticket.id})
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-
-    return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-  except (ObjectDoesNotExist, ValidationError):
-    return Response({
-        'error': 'Invalid ticket id'
-    }, status=status.HTTP_400_BAD_REQUEST)
-
-
 class PurchaseTicketsView(viewsets.ModelViewSet):
   permission_classes = [AllowAny]
   queryset = Ticket.objects.filter(is_deleted=False)
   serializer_class = TicketSerializer
+  
+  def update(self, request, ticket_id):
+    try:
+      ticket = Ticket.objects.get(id=ticket_id)
+
+      if ticket.number_purchased >= ticket.max_purchase_count:
+        return Response({
+            'error': 'All tickets have been bought'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+      ticket.number_purchased = F('number_purchased') + 1
+      ticket.save()
+
+      serializer = PurchaseSerializer(data={'ticket': ticket.id})
+      serializer.is_valid(raise_exception=True)
+      serializer.save()
+      
+      return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+    except (ObjectDoesNotExist, ValidationError):
+      return Response({
+          'error': 'Invalid ticket id'
+      }, status=status.HTTP_400_BAD_REQUEST)
