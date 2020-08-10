@@ -1,23 +1,19 @@
 from django.urls import path
 from .views import (
-    create_restaurant,
-    get_restaurants,
-    create_ticket,
-    update_ticket,
-    get_tickets,
-    get_single_ticket,
-    get_single_restaurant,
-    PurchaseTicketsView
+    PurchaseTicketsView,
+    RestaurantView,
+    TicketView,
 )
 
 urlpatterns = [
-    path('', get_restaurants),
-    path('create/', create_restaurant),
-    path('<restaurant_id>/', get_single_restaurant),
-    path('ticket/<restaurant_id>/', get_tickets),
-    path('ticket/single/<ticket_id>/', get_single_ticket),
-    path('ticket/create/<restaurant_id>/', create_ticket),
-    path('ticket/edit/<ticket_id>/', update_ticket),
+    path('', RestaurantView.as_view({'get': 'list'})),
+    path('create/', RestaurantView.as_view({'post': 'create'})),
+    path('<restaurant_id>/', RestaurantView.as_view({'get': 'retrieve'})),
+    path('ticket/<restaurant_id>/', TicketView.as_view({'get':'list'})),
+    path('ticket/single/<ticket_id>/',TicketView.as_view({'get':'retrieve'})),
+    path('ticket/create/<restaurant_id>/',
+         TicketView.as_view({'post': 'create'})),
+    path('ticket/edit/<ticket_id>/', TicketView.as_view({'put':'update'})),
     path('purchase/tickets/', PurchaseTicketsView.as_view({'get': 'list'})),
     path('ticket/buy/<ticket_id>/',
          PurchaseTicketsView.as_view({'put': 'update'})),
