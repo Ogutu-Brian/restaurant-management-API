@@ -8,7 +8,7 @@ from .views import (
     buy_ticket,
     get_single_ticket,
     get_single_restaurant,
-    get_all_tickets
+    PurchaseTicketsView
 )
 
 urlpatterns = [
@@ -20,5 +20,5 @@ urlpatterns = [
     path('ticket/create/<restaurant_id>/', create_ticket),
     path('ticket/edit/<ticket_id>/', update_ticket),
     path('ticket/buy/<ticket_id>/', buy_ticket),
-    path('purchase/tickets/', get_all_tickets)
+    path('purchase/tickets/', PurchaseTicketsView.as_view({'get':'list'}))
 ]

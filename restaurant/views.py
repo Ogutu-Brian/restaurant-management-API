@@ -8,6 +8,8 @@ from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from user_profile.utils.profile_helpers import get_profile_from_api_request
 from django.db.models import F
+from rest_framework import viewsets
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -144,7 +146,7 @@ def buy_ticket(request, ticket_id):
       return Response({
           'error': 'All tickets have been bought'
       }, status=status.HTTP_400_BAD_REQUEST)
-    
+
     ticket.number_purchased = F('number_purchased') + 1
     ticket.save()
 
@@ -159,10 +161,7 @@ def buy_ticket(request, ticket_id):
     }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def get_all_tickets(request):
-  tickets = Ticket.objects.filter(is_deleted=False)
-  serializer = TicketSerializer(tickets, many=True)
-
-  return Response(data=serializer.data, status=status.HTTP_200_OK)
+class PurchaseTicketsView(viewsets.ModelViewSet):
+  permission_classes = [AllowAny]
+  queryset = Ticket.objects.filter(is_deleted=False)
+  serializer_class = TicketSerializer
