@@ -1,0 +1,7 @@
+SECRET_KEY='60bfx1w3@b26_4-@u8%i28$u%ic_5spr$xx5u!h@4&evu5s%(s'
+DATABASE_NAME=restaurant_db
+DATABASE_PASSWORD=password
+DATABASE_USER=restaurant_user
+DEBUG=True
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
